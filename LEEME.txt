@@ -1,0 +1,374 @@
+﻿Postventa - servidor del taller (recepción de equipos, OT y alquileres)
+====================================================================
+
+QUÉ ES
+Un programa que corre en una PC del taller y guarda todos los ingresos
+(clientes, equipos y fotos) en una sola base de datos. Desde cualquier
+celular o PC conectado a la misma red Wi-Fi se abre una dirección en el
+navegador y se carga o se consulta todo.
+
+
+1) REQUISITOS (una sola vez, en la PC servidor)
+- Python 3.9 o más nuevo. Si no lo tiene: https://www.python.org/downloads/
+  En el instalador, tildar "Add python.exe to PATH".
+- Nada más. No hay que instalar otros programas.
+
+
+2) INICIAR
+- Descomprimir la carpeta donde quieran (por ejemplo C:\Postventa).
+- Doble clic en iniciar.bat.
+- Se abre una ventana negra con las direcciones. Hay que dejarla abierta:
+  si se cierra, se apaga el servidor.
+- Si Windows pregunta por el Firewall, elegir "Permitir acceso" (redes
+  privadas).
+
+
+3) USAR
+- En la PC servidor: http://localhost:8080
+- En celulares y otras PC de la misma red: la dirección que aparece en la
+  ventana como "Desde celulares y otras PC", por ejemplo
+  http://192.168.0.25:8080
+- Conviene guardarla como favorito o agregarla a la pantalla de inicio.
+- Recomendado: pedirle al router una IP fija para la PC servidor, así la
+  dirección no cambia.
+- Fotos del equipo: botón "Sacar foto del equipo" (se abre la cámara del
+  celular; la primera vez, aceptar el permiso). Se pueden sacar hasta 3 por
+  ingreso: la primera, de la etiqueta con la serie, y las otras como
+  registro del estado en que llegó. Cada foto se puede quitar con la ×.
+- Los datos del cliente se completan a mano (no hay foto del papel).
+
+
+4) LECTURA DE FOTOS (gratis, ya incluida)
+Al sacar las fotos del equipo, la app intenta completar serie, marca,
+modelo y tipo. Es gratuita: no usa internet ni claves, la lectura se hace
+en el propio celular (la primera vez tarda unos segundos).
+- Funciona bien con etiquetas impresas, de cerca, con buena luz y sin brillo.
+- Se equivoca más que un servicio pago: revisar SIEMPRE la serie letra por
+  letra (0/O, 1/I, 5/S, 8/B se confunden).
+- Con varias fotos, las siguientes solo completan lo que todavía está vacío:
+  no pisan lo que ya se leyó ni lo que escribiste vos.
+- Los campos completados solos se marcan para que los revises.
+
+Opcional, más precisa: lectura con Gemini (Google)
+- Entrar a https://aistudio.google.com/apikey con una cuenta de Google y
+  crear una clave ("Create API key"). Tiene capa gratuita con límites.
+- Pegar la clave en config.json entre las comillas de "gemini_api_key",
+  guardar y reiniciar el servidor (cerrar la ventana negra y abrir
+  iniciar.bat de nuevo).
+- Si el servicio no responde o se pasa del límite gratuito, la app usa sola
+  la lectura gratis del celular y lo avisa.
+- IMPORTANTE: en la capa gratuita, Google puede usar lo que se envía (las
+  fotos de los equipos) para mejorar sus productos. Para evitarlo hay que
+  activar la facturación en Google (capa paga).
+- La foto viaja desde la PC servidor a Google: necesita internet. La clave
+  queda solo en la PC servidor, no se envía a los celulares.
+- "gemini_modelo" en config.json define qué modelo usar (por defecto
+  gemini-3.6-flash). Si Google lo retira, cambiarlo por uno vigente.
+- Opcional también: "anthropic_api_key" para usar Claude (paga). Si hay
+  clave de Gemini se usa Gemini; si no, Claude; si no, la lectura gratis.
+
+
+4b) IMPRIMIR LA HOJA PARA PEGAR EN EL EQUIPO
+- Al guardar un ingreso aparece "Imprimir hoja". También está en cada
+  ingreso de la lista ("Ingresados").
+- Sale una hoja A4 en blanco y negro con: n.º de ingreso, fecha, serie en
+  letra grande, equipo, cliente, teléfono, falla, accesorios, observaciones,
+  las fotos del equipo (hasta 3), OT y un código QR. No incluye DNI/CUIL ni dirección del cliente.
+- El QR abre el ingreso en la app. Para que funcione desde el celular, usar
+  la dirección de red del servidor (no "localhost") y conviene IP fija.
+- Se puede imprimir en una hoja y recortar, o en etiquetas adhesivas A4.
+
+
+4c) DNI / CUIL / CUIT Y SITUACIÓN IMPOSITIVA
+- Si cargás un DNI (7 u 8 dígitos), la app propone los CUIL posibles (20 si
+  es varón, 27 si es mujer) y los completa con un toque. Son cálculos, no
+  una consulta: hay que elegir el que corresponde a la persona.
+- Si el CUIT/CUIL es válido, aparece el botón "Consultar en ARCA": copia el
+  CUIT y abre la consulta pública de constancia de inscripción de ARCA. Ahí
+  se pega el CUIT (puede pedir un código de verificación) y se ve la razón
+  social, el domicilio y la condición frente al IVA.
+- Esa condición se anota en el campo "Condición frente al IVA" y queda
+  guardada con el ingreso (se ve en la lista y en el CSV).
+- La app NO consulta ARCA sola. Para hacerlo automático hace falta un
+  certificado digital de la empresa con el servicio habilitado en ARCA, o un
+  servicio de terceros.
+- Si ARCA cambia la dirección de la consulta, se corrige en config.json
+  ("url_consulta_arca").
+
+
+4d) BASE DE CLIENTES
+- El listado de clientes del sistema (clientes.ods, con código, CUIT, DNI,
+  razón social, teléfono, dirección y localidad) se carga solo al iniciar el
+  servidor. Se ve en la ventana negra: "Clientes cargados: ...".
+- En "Nombre y apellido o razón social", al escribir aparecen sugerencias
+  (se busca por nombre, nombre de fantasía, código, CUIT, DNI, teléfono o
+  dirección). Al tocar una, se completan nombre, documento, teléfono y
+  dirección, y el equipo queda asociado a ese cliente (se ve su N.º de
+  cliente). También sugiere al escribir un DNI o CUIT que ya está en la base.
+- Si el cliente no está en la base, se carga a mano y la app lo crea: la
+  próxima vez ya aparece en las sugerencias.
+- Para actualizar la lista: reemplazar clientes.ods por el listado nuevo
+  (mismo formato) y reiniciar el servidor. Los clientes se actualizan por
+  código; no se borra nada ni se pierden los ingresos.
+- Ojo: algunos nombres vienen cortados en el listado original.
+- El código de cliente sale también en la lista y en el CSV, para cargar en
+  el sistema.
+
+
+4e) EQUIPOS Y NÚMEROS DE SERIE
+- El listado de reparaciones del sistema (reparaciones.csv) se carga solo al
+  iniciar el servidor: "Equipos cargados desde reparaciones.csv: ...".
+  Se crea un equipo por cada número de serie, con tipo, marca, modelo, su
+  cliente (si está en la base de clientes) y cuántas veces pasó por el taller.
+- Al escribir o leer con la foto un número de serie que ya está en la base,
+  aparece "Este equipo ya está en la base": con un toque se completan tipo,
+  marca, modelo y cliente, y se ve la última OT y la falla anterior. Si la
+  serie no es exacta, muestra las parecidas.
+- Los equipos que se cargan en la app también se guardan, así que la
+  próxima vez se reconocen.
+- El tipo, la marca y el modelo se separan del texto del sistema por
+  estimación (por ejemplo "NEBULIZADOR NU320": tipo + modelo; "AUTOCLAVE
+  -DEL GIUDICE": tipo + marca). Pueden quedar errores: se corrigen en el
+  formulario. Las órdenes anuladas y las que no tienen serie (S/D, vacía)
+  no se cargan como equipos.
+- Para actualizar: reemplazar reparaciones.csv por el listado nuevo (mismo
+  formato) y reiniciar el servidor. No se pierde nada de lo cargado en la app.
+
+
+4f) BUSCAR ORDEN DE TRABAJO (pestaña "Buscar OT")
+- Sirve para encontrar la OT de un equipo. Se busca por cliente y/o número de
+  serie; el resto (tipo, marca, modelo, fechas y OT) está en "Búsqueda avanzada":
+  cliente (nombre o parte), número de serie (completo o parte), rango de
+  fechas y/o número de OT. Se pueden combinar.
+- Busca en todas las órdenes del listado de reparaciones (reparaciones.csv,
+  excepto las anuladas) y también en los ingresos hechos en la app. Si un
+  ingreso de la app tiene cargado el mismo N.º de OT que una orden del
+  listado, se muestra una sola vez, con el botón "Ver ingreso N.º ...".
+- Fechas: se muestran la fecha de INGRESO y, si corresponde, la de
+  FINALIZACIÓN (F.Ingreso y F.Terminado del listado; la fecha 30/12/1899 del
+  sistema significa "sin fecha" y no se muestra). La "entrega prevista" no se
+  usa. Los filtros "Ingreso desde/hasta" usan la fecha de ingreso; las órdenes
+  que no la tienen no aparecen al filtrar por fecha.
+- Se pueden dejar varios listados en la carpeta (reparaciones.csv,
+  reparaciones_con_fechas.csv, etc.): se combinan por N.º de OT y el que tiene
+  más columnas completa o pisa los datos del otro. Así se conservan las
+  órdenes viejas aunque el listado nuevo sea más corto.
+- En pantallas grandes (PC) los filtros quedan a la izquierda y los
+  resultados a la derecha, para ver los resultados mientras se completan los
+  filtros. En el celular se ve igual que siempre, uno debajo del otro.
+- Toca una orden para ver cliente, equipo, serie, falla, observaciones y
+  trabajo a realizar. Muestra hasta las 200 más recientes.
+- Para tener órdenes nuevas: reemplazar reparaciones.csv por un listado
+  actualizado y reiniciar el servidor.
+- Al pie de la pestaña se ve cuándo se cargó por última vez el listado
+  ("Base de OT actualizada el ..."), para saber si hay que actualizarlo.
+  La fecha es la de la carga en el servidor (cuando se reinició con un
+  reparaciones.csv nuevo), no la de exportación del listado.
+
+
+4g) PENDIENTES DEL SISTEMA, NOTAS INTERNAS Y FOTOS POR OT
+- En la pestaña "Ingresados", debajo de los ingresos hechos en la app, aparecen
+  los equipos del listado de Flexxus que todavía no se repararon: estados
+  ESP REPARACION, ESP APROB. PRES, ESP.REPUESTOS, REPARACION/DIAG y SERVICE DE
+  TERC. No se incluyen NO REPARADO, SIN CARGO, FACTURADO, FINALIZADO,
+  REPARADO, ANULADO ni los demás. El botón "Pendientes del sistema" muestra
+  solo esos. Si un equipo ya tiene un ingreso en la app con el mismo N.º de
+  OT, se ve una sola vez (como ingreso).
+- Para cambiar qué estados se consideran pendientes, agregar en config.json:
+  "estados_pendientes": ["ESP REPARACION/", "ESP.REPUESTOS", ...]
+- Cada orden del listado (en "Ingresados" y en "Buscar OT") tiene "Notas
+  internas y fotos": se escribe la nota y se toca "Guardar nota" (también se
+  guarda al salir del campo), y se suman hasta 10 fotos con "Sacar foto" o
+  "Elegir de la galería". Se guardan por N.º de OT en la base del servidor, las
+  ven todos los técnicos y no se pierden al cargar un listado nuevo.
+- En las órdenes del listado, la falla real y la reparación hecha se leen de
+  "Observaciones" de Flexxus (se ve en el resumen y como "Falla / reparación").
+  El campo "Defecto" de Flexxus suele traer solo el tipo de servicio (por
+  ejemplo "mantenimiento"), por eso se muestra aparte como "Tipo de servicio".
+- Las notas y fotos no se imprimen ni salen del taller. En los ingresos hechos
+  en la app siguen las fotos y la nota del propio ingreso.
+
+
+4h) ALQUILER: CONTRATO EN WORD
+- Pestaña "Alquiler": se cargan los datos del paciente (trato Sr/Sra, nombre y
+  apellido, DNI, teléfono, dirección y ciudad) y el equipo. Al escribir el N.º
+  de serie, si el equipo ya está en la base se completan solos tipo, marca y
+  modelo (se pueden sumar más equipos o accesorios, por ejemplo un tubo de O2).
+- "Cómo dice en el contrato" (por ejemplo "un Concentrador mas tubo de O2") y
+  "Datos del equipo" se arman solos y se pueden corregir a mano.
+- Se elige el plazo en meses y la fecha de inicio; el vencimiento se calcula
+  solo (mismo día, X meses después). También la fecha de firma.
+- El N.º de contrato se sugiere solo (el siguiente al último generado; el primero
+  es el 5888, se cambia con "contrato_numero_inicial" en config.json). El año va
+  en 2 cifras. No se pueden repetir número y año.
+- "Generar contrato (Word)" guarda el contrato y descarga el .docx para imprimir
+  y hacer firmar. Todos los contratos quedan en la lista de la derecha, donde se
+  puede volver a descargar, buscar por paciente/DNI/equipo/serie, eliminar o
+  "Usar como base (renovar)" para un nuevo contrato del mismo paciente.
+- El Word sale de TU modelo (carpeta plantillas, archivo contrato_alquiler.docx):
+  se cambia solo el texto de los datos que varían. Encabezado, pie con logos,
+  fuentes, márgenes y cláusulas quedan idénticos. Probado: con los datos del
+  modelo el resultado coincide con el original página por página.
+- El modelo no trae DNI ni teléfono del paciente: por defecto se agregan en el
+  párrafo inicial (", DNI N° ..., teléfono ..."); se puede destildar "Incluir
+  DNI y teléfono" para dejarlo como el modelo.
+- Si algún día se modifica el modelo (cambia el texto de esas partes), la app
+  avisa en vez de generar un contrato con los datos mal ubicados.
+
+
+5) DÓNDE QUEDAN LOS DATOS Y COPIAS DE SEGURIDAD
+- Carpeta "datos": recepcion.db (la base de datos) y la carpeta fotos.
+- Copia de seguridad: con el servidor apagado, copiar la carpeta "datos" a un
+  pendrive o disco externo. Conviene hacerlo seguido.
+- Restaurar: volver a copiar esa carpeta junto a servidor.py.
+- recepcion.db se puede abrir con "DB Browser for SQLite" (gratis) para
+  hacer consultas.
+- En la pestaña "Ingresados" hay un botón para exportar a CSV (se abre con
+  Excel).
+
+
+6) INICIO AUTOMÁTICO CON WINDOWS (opcional)
+- Apretar Win+R, escribir shell:startup y Enter.
+- Pegar en esa carpeta un acceso directo a iniciar.bat.
+
+
+7) SEGURIDAD
+- No tiene contraseña: cualquiera conectado a la red del taller puede abrirlo.
+- Guarda DNI, CUIL y teléfonos de clientes. No abrir el puerto a internet
+  (nada de reenvío de puertos en el router).
+- Para usarlo fuera del taller, pedirle a quien administre la red una VPN.
+
+
+8) PROBLEMAS FRECUENTES
+- "Python no se reconoce como comando": reinstalar Python tildando
+  "Add python.exe to PATH".
+- El celular no abre la dirección: revisar que esté en la misma Wi-Fi, que
+  la PC servidor esté encendida y que el Firewall de Windows permita
+  Python.
+- "No se pudo abrir el puerto": hay otra ventana del servidor abierta, o el
+  puerto está ocupado. Cerrarla o cambiar "puerto" en config.json.
+- La cámara no se abre: usar el botón "Galería" y elegir una foto sacada con
+  la app de cámara del teléfono.
+
+
+ACTUALIZAR
+Reemplazar servidor.py, reparaciones.py y la carpeta static (incluye static/lib). La carpeta datos no se toca.
+En otros sistemas (Linux o Mac): python3 servidor.py
+
+
+4i. Diseño con la marca Inbio
+- Encabezado azul #172236 con el logo, pestaña activa y botones principales en verde #79e290, tarjetas con filete verde azulado #57b698 y fondo gris #e3e5e3. Se adapta solo al modo oscuro del celular/PC.
+- Las imágenes están en la carpeta static/img (logo.png, logo-blanco.png, icono.png). Para cambiar los colores, están al principio de static/index.html (bloque :root).
+- Al actualizar, reemplazá también la carpeta static completa y servidor.py.
+
+
+4j. Actualizar la base de OT con un listado nuevo
+- Lo más simple: en la pestaña "Buscar OT", abrí "Actualizar la base de OT", elegí el listado que exportás de Flexxus (.csv o .xls) y tocá "Cargar listado". La app lo guarda en la carpeta como reparaciones_dd-mm-aaaa.csv, actualiza la base y muestra cuántas OT son nuevas y cuáles cambiaron de estado. No hace falta reiniciar.
+- A mano: copiá el listado en la carpeta de la app con un nombre que empiece con "reparaciones" y lleve la fecha (por ejemplo reparaciones_21-10-2026.csv) y reiniciá el servidor. Dejá también los archivos anteriores.
+- Si una OT está en varios archivos, manda el de fecha más nueva (cambia el estado, el cliente, etc.). Las OT que solo están en archivos viejos se mantienen como estaban.
+- Un listado filtrado por fechas (por ejemplo "desde 16/10") solo actualiza esas OT: las anteriores no se enteran de si ya se repararon. Para eso hace falta un listado completo.
+- La lectura de .xls usa la carpeta lib_py (librería xlrd, licencia BSD). No la borres.
+
+
+4k. Búsqueda general en Buscar OT
+- El primer campo, "Búsqueda general", busca en una sola vez por cliente, N.º de serie, tipo de equipo, marca, modelo y N.º de OT. Se pueden escribir varias palabras en cualquier orden ("nebulizador sierra", "classic 1848"): tienen que aparecer todas.
+- Los demás campos y la búsqueda avanzada siguen sirviendo para acotar el resultado.
+
+
+4l. Modo claro / oscuro
+- El botón redondo arriba a la derecha (luna / sol) cambia entre modo claro y oscuro. La app recuerda la elección en cada navegador; mientras no la elijas, sigue el modo del celular o la PC.
+
+
+4m. Guías del sistema anterior
+- El archivo sistema_anterior.csv (33.795 guías, 2005 a 2025) se carga solo al iniciar el servidor. Todas figuran como FINALIZADO. No lo borres ni lo muevas.
+- En "Buscar OT", tildá "Incluir guías del sistema anterior": la búsqueda general mira la falla, el informe técnico, los accesorios y las observaciones; el campo N.º de OT busca también por número de guía; las fechas de ingreso filtran también las guías.
+- Las guías ya tienen el nombre del cliente (cruzado por el código con el listado Clientes del sistema viejo): se pueden buscar por cliente y se ve su CUIT, dirección y teléfono. El cruce con las OT nuevas es por el texto del nombre ("ferre", "samco"...), así que una búsqueda por cliente trae las OT de los dos sistemas.
+- Cada guía tiene su equipo completo (cruzado con las tablas Aparatos, Equipos, Marcas y Modelos del sistema viejo): tipo, marca, modelo y N.º de serie. Se puede buscar por cualquiera de esos datos. Los que figuran como "Sin especificar" quedan en blanco; si el N.º de serie está en las OT nuevas, la marca y el modelo que falten se toman de ahí.
+- Las fechas "31/12/2009" del sistema viejo se tomaron como "sin fecha". 513 guías tienen fecha de reparación anterior a la de ingreso y 1 tiene un ingreso en 2027: son datos del sistema viejo, no se corrigieron.
+
+
+4n. Instalar la app en Android
+La app es instalable (PWA): queda con su ícono en el celular y se abre a pantalla completa, sin la barra del navegador. Sigue usando el servidor de la PC del taller, así que el celular tiene que estar en el mismo WiFi.
+1) En el celular abrí Chrome y entrá a la dirección que muestra la ventana negra del servidor (por ejemplo http://192.168.1.20:8080).
+2) Menú de Chrome (los tres puntos) > "Agregar a la pantalla principal" (o "Instalar aplicación" si aparece). Confirmá. Queda el ícono azul con el paréntesis verde.
+3) Si en el paso 2 solo aparece "Agregar acceso directo" y quedás con la barra del navegador, hacé esto una vez en ese celular para que se instale como app completa:
+   - En Chrome escribí chrome://flags y buscá "Insecure origins treated as secure".
+   - Activala, escribí la dirección del servidor (http://192.168.1.20:8080, la tuya) en el cuadro, tocá "Reiniciar" y repetí el paso 2.
+- Si el servidor cambia de dirección (por ejemplo la PC cambia de IP), hay que volver a instalar. Conviene fijarle una IP a la PC del taller en el router.
+- Si no hay conexión con el servidor, la app muestra un aviso con el botón "Reintentar".
+
+
+4o. Reparación, notas internas e informe técnico (pestaña "Ingresos")
+- La pestaña "Nuevo ingreso" ahora se llama "Ingresos". Debajo de los datos del equipo y del cliente hay dos secciones nuevas:
+  * Reparación: trabajo realizado, fecha de la reparación (si la dejás vacía se pone la de hoy), técnico (el celular se acuerda del último nombre) y hasta 8 fotos de la reparación.
+  * Uso interno: notas del taller. No salen en el informe ni las ve el cliente.
+- Para cargar la reparación de un equipo ya ingresado: en "Ingresados" abrí el equipo y tocá "Editar".
+- "Generar informe técnico" guarda los cambios y abre el informe en otra pestaña (membrete de Inbio, datos del cliente y del equipo, falla informada, trabajo realizado y fotos de la reparación). Desde ahí: "Imprimir / Guardar como PDF". Para mandárselo al cliente, guardalo como PDF y compartilo por WhatsApp o mail. Hay una casilla para sumar las fotos del equipo al ingreso.
+- En "Ingresados", cada equipo tiene el botón "Informe técnico" para abrirlo de nuevo.
+- Los equipos que vienen de Flexxus siguen usando las notas y fotos de la pestaña "Buscar OT".
+
+4p. Reparaciones anteriores y vínculo con Flexxus al ingresar
+   Al escribir el número de serie en "Ingresos", aparece el historial de ese equipo
+   (OT de Flexxus, ingresos de Postventa y guías del sistema anterior).
+   Si hay una OT de Flexxus de los últimos 30 días que todavía no está vinculada, sale un
+   aviso: "¿Este ingreso corresponde a esa OT?". Con "Sí" se completa el campo OT y ambas
+   órdenes se muestran como una sola (sin duplicado). "No" descarta el aviso. Se puede
+   "Desvincular" antes de guardar.
+
+4q. Informe técnico en una sola hoja A4
+   Datos en dos columnas, con tipo, marca y modelo tal como se cargaron en la app (no los de Flexxus),
+   "Falla declarada", trabajo realizado, fotos que se achican solas según la cantidad
+   (hasta 11 entran en la hoja) y al final firma del técnico y firma del cliente (aclaración y DNI).
+   Con textos muy largos puede pasar a una segunda hoja.
+
+4r. N.º de OT de Flexxus en el ingreso y aviso mejorado
+   - El campo "N.º de OT en Flexxus" ahora está en la tarjeta Equipo, debajo del N.º de serie. Al escribirlo muestra la OT encontrada
+     (cliente, equipo, serie, fecha, estado) y avisa si la serie no coincide. Si escribís solo el final del número (ej. 1850), ofrece el
+     número completo. Si la OT no está en el listado cargado, avisa que quizás hay que subir el listado más nuevo (Buscar OT).
+   - El aviso por serie (OT de Flexxus de los últimos 30 días) ahora también encuentra series escritas distinto (ej. "SN-83232" contra "83232").
+   - Importante: el aviso depende del listado de Flexxus cargado en la app. Si la OT es de hoy y el listado es viejo, no va a aparecer
+     hasta que subas el listado nuevo; en ese caso cargá el número a mano en el campo de OT.
+
+4s. Subir el listado de Flexxus desde el ingreso
+   - Al cargar un N.º de serie, si no hay ninguna OT de Flexxus de los últimos 30 días con esa serie, el ingreso lo dice, muestra
+     hasta qué fecha llega el listado cargado (OT más nueva) y ofrece "Subir listado de Flexxus". Al subirlo, vuelve a buscar solo y,
+     si aparece la OT, pregunta si es la misma para unirlas.
+
+4t. Pestaña Ingresos simplificada
+   - Se sacaron los textos explicativos de las tarjetas.
+   - N.º de OT de Flexxus: el "OT 10000" ya viene fijo; se completan solo los últimos 4 dígitos (si se pega el número completo, se acomoda solo).
+   - Accesorios y observaciones: dos recuadros. Accesorios es una lista de los más comunes (los más usados van primero); "Otro accesorio"
+     agrega uno nuevo y queda guardado en la base para todos los ingresos y todas las PC. Se sacó "Recibió" y "Otros accesorios"
+     (los ingresos viejos conservan esos datos).
+   - Reparación: la fecha viene con el día de hoy. Técnico es una lista (Maximiliano Cabrera, Guillermo Brown) con "+ Agregar técnico…".
+   - Audio: botón "Grabar audio" en Trabajo realizado. Se graba, se pasa a texto y se agrega al recuadro para revisar antes de guardar.
+     Necesita la clave de Gemini en config.json (gemini_api_key) e internet. En el teléfono, si el navegador no permite grabar desde
+     la página (http en la red local), se abre la grabadora del teléfono y se elige la grabación.
+
+4u. Alquiler con IAPOS
+   - En Alquiler hay una casilla "IAPOS" (el gremio paga el alquiler). Tildada, el contrato se genera con el modelo de IAPOS
+     (plantillas/contrato_alquiler_iapos.docx); destildada, con el modelo de siempre. Al tildarla el plazo pasa a 6 meses
+     (si no lo cambiaste a mano) y la cláusula 9 se ajusta a los días de vigencia. El nombre del archivo lleva "IAPOS"
+     (ej. 5964-26_IAPOS_-_Perez_Juan_-_CPAP.docx) y en la lista de contratos aparece la marca IAPOS.
+   - Si se reemplaza la carpeta plantillas, conservar los dos modelos.
+
+4v. Pestaña Preventivos
+   - Mantenimientos recurrentes: se agrega el equipo (serie, tipo, marca, modelo; con la serie completa solo lo que ya está en la base),
+     el cliente, cada cuántos meses se repite (1, 2, 3, 4, 6, 12, 24 u otro), la fecha del próximo y las tareas a realizar.
+   - Próximos mantenimientos: lista ordenada por fecha (vencidos primero, en rojo), con filtros (vencidos, 30 y 90 días) y buscador.
+     El número en la pestaña indica los vencidos o que vencen en 7 días o menos.
+   - "Registrar mantenimiento": fecha, técnico, N.º de OT de Flexxus (se carga después de pasarlo a Flexxus; también se puede completar
+     más tarde con "Editar" desde el Historial), trabajo realizado (con audio), fotos (hasta 8) y "Para el próximo mantenimiento".
+     Al guardar, el próximo se calcula solo (fecha + frecuencia, se puede cambiar) y lo anotado para el próximo aparece destacado
+     la próxima vez. En el historial se ven todos los mantenimientos con sus fotos; los que no tienen OT figuran "Sin OT en Flexxus".
+   - Al borrar un mantenimiento del historial, el equipo vuelve a quedar pendiente en la fecha de ese mantenimiento.
+   - Preventivos: "Buscar equipo en la base" (serie, cliente o modelo) completa los datos del equipo desde la base de equipos de la app
+     (los que vienen de Flexxus y de los ingresos). Si falla el guardado, el aviso ahora dice la causa; si dice que el servidor no tiene
+     la función, hay que reemplazar servidor.py y reiniciar el servidor.
+
+4w. Preventivos: items, notas internas y registro de cada mantenimiento
+   - En cada mantenimiento recurrente se cargan, uno por uno, los "Items de cada mantenimiento" (se repiten siempre) y los "Items solo para
+     el próximo mantenimiento" (se hacen una sola vez), más "Notas internas".
+   - Al registrar un mantenimiento se tildan los items hechos; se puede agregar un item nuevo a cada mantenimiento desde ahí, y anotar
+     items solo para el siguiente. Los items solo-esa-vez que no se tildaron pasan al siguiente. También hay "Notas internas" abajo.
+   - El historial guarda cada mantenimiento con fecha, técnico, OT, items (✓ hecho / ✗ no hecho), trabajo, fotos y nota interna.

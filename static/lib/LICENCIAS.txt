@@ -1,0 +1,13 @@
+Componentes de terceros incluidos en esta carpeta (se usan sin modificar):
+
+- Tesseract.js (tesseract.min.js, worker.min.js) - Apache License 2.0
+  https://github.com/naptha/tesseract.js
+- Tesseract.js-core (carpeta core) - Apache License 2.0
+  https://github.com/naptha/tesseract.js-core
+- Datos de idioma Tesseract "eng" best_int (lang/eng.traineddata.gz) - Apache License 2.0
+  https://github.com/tesseract-ocr/tessdata_best
+- qrcode-generator (qrcode.js) - MIT License, (c) Kazuhiko Arase
+  https://github.com/kazuhikoarase/qrcode-generator
+
+Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0
+MIT License: https://opensource.org/licenses/MIT

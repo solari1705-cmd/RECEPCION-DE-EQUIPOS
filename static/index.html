@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#172236">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Postventa">
+<script>try { var t = localStorage.getItem("recepcion_tema"); if (t === "claro") document.documentElement.setAttribute("data-theme", "light"); else if (t === "oscuro") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}</script>
+<link rel="icon" type="image/png" href="/img/icono.png">
+<link rel="apple-touch-icon" href="/img/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Postventa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+html { color-scheme: light; overflow-x: clip; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+
+/* Layout: una sola columna angosta pensada para el celular en el mostrador. Pestañas fijas arriba, tarjetas con foto primero, barra de guardado fija abajo. */
+:root {
+  /* Paleta Inbio: azul #172236, verde azulado #57b698, verde #79e290, gris #e3e5e3 */
+  --brand: #172236;
+  --brand-teal: #57b698;
+  --brand-green: #79e290;
+  --brand-gray: #e3e5e3;
+  --bg: #F2F4F2;
+  --surface: #FFFFFF;
+  --surface-2: #E3E5E3;
+  --ink: #172236;
+  --ink-2: #4B5668;
+  --line: #D2D6D3;
+  --accent: #2B7C66;
+  --accent-ink: #172236;
+  --accent-soft: #DDF4E7;
+  --btn: #79E290;
+  --btn-hover: #6AD580;
+  --warn: #9A5408;
+  --warn-soft: #FBEBD2;
+  --bad: #B3261E;
+  --bad-soft: #F8DAD6;
+  --ok: #23704F;
+  --ok-soft: #DDF4E7;
+  --top-bg: var(--bg);
+  --top-ink: #172236;
+  --top-line: var(--line);
+  --tabs-bg: #E3E5E3;
+  --tab-ink: #4B5668;
+  --tab-hover: rgba(23,34,54,.07);
+  --tab-n-bg: #D2D6D3;
+  --tab-n-ink: #172236;
+  --logo-l: block;
+  --logo-d: none;
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1827;
+    --surface: #172236;
+    --surface-2: #22304A;
+    --ink: #FAFBFA;
+    --ink-2: #CDD5E1;
+    --line: #2D3C58;
+    --accent: #79E290;
+    --accent-ink: #172236;
+    --accent-soft: #1B3A3A;
+    --btn: #79E290;
+    --btn-hover: #8DEBA2;
+    --top-bg: #172236;
+    --top-ink: #FFFFFF;
+    --top-line: #2D3C58;
+    --tabs-bg: rgba(255,255,255,.09);
+    --tab-ink: #E9EDF3;
+    --tab-hover: rgba(255,255,255,.08);
+    --tab-n-bg: rgba(255,255,255,.16);
+    --tab-n-ink: #FFFFFF;
+    --logo-l: none;
+    --logo-d: block;
+    --warn: #F2B05E;
+    --warn-soft: #3A2A10;
+    --bad: #F2877F;
+    --bad-soft: #3C1B18;
+    --ok: #79E290;
+    --ok-soft: #173A2E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1827;
+  --surface: #172236;
+  --surface-2: #22304A;
+  --ink: #FAFBFA;
+  --ink-2: #CDD5E1;
+  --line: #2D3C58;
+  --accent: #79E290;
+  --accent-ink: #172236;
+  --accent-soft: #1B3A3A;
+  --btn: #79E290;
+  --btn-hover: #8DEBA2;
+  --top-bg: #172236;
+  --top-ink: #FFFFFF;
+  --top-line: #2D3C58;
+  --tabs-bg: rgba(255,255,255,.09);
+  --tab-ink: #E9EDF3;
+  --tab-hover: rgba(255,255,255,.08);
+  --tab-n-bg: rgba(255,255,255,.16);
+  --tab-n-ink: #FFFFFF;
+  --logo-l: none;
+  --logo-d: block;
+  --warn: #F2B05E;
+  --warn-soft: #3A2A10;
+  --bad: #F2877F;
+  --bad-soft: #3C1B18;
+  --ok: #79E290;
+  --ok-soft: #173A2E;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  overflow-x: clip;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.45;
+  padding-inline: 16px;
+  padding-block: 0 112px;
+}
+.wrap { max-width: 680px; margin: 0 auto; }
+h1, h2 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Encabezado: gris claro como el fondo (azul de marca en modo oscuro), logo grande */
+.top {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 5;
+  background: var(--top-bg);
+  color: var(--top-ink);
+  padding-block: 14px 12px;
+  margin-inline: -16px;
+  padding-inline: 16px;
+  box-shadow: 0 0 0 100vmax var(--top-bg);
+  clip-path: inset(0 -100vmax -3px -100vmax);
+}
+.top::after { content: ""; position: absolute; left: -100vmax; right: -100vmax; bottom: -3px; height: 3px; background: linear-gradient(90deg, var(--brand-teal), var(--brand-green)); }
+.top-in { max-width: 680px; margin: 0 auto; display: grid; gap: 14px; }
+.brand { display: flex; align-items: center; gap: 16px; }
+.brand img { height: 46px; width: auto; flex: none; }
+.brand .logo-l { display: var(--logo-l); }
+.brand .logo-d { display: var(--logo-d); }
+@media (max-width: 400px) { .brand { gap: 12px; } .brand img { height: 38px; } .brand h1 { font-size: 19px; letter-spacing: .02em; padding-left: 12px; } }
+@media (max-width: 345px) { .brand { gap: 8px; } .brand img { height: 30px; } .brand h1 { font-size: 16px; letter-spacing: .01em; padding-left: 8px; } .tema { width: 38px; height: 38px; } }
+.tema { margin-left: auto; flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--top-line); background: transparent; color: var(--top-ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.tema:hover { border-color: var(--brand-teal); background: var(--tab-hover); }
+.tema:focus-visible { outline-color: var(--brand-green); }
+.tema .i-luna { display: none; }
+:root[data-theme="dark"] .tema .i-sol { display: none; }
+:root[data-theme="dark"] .tema .i-luna { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tema .i-sol { display: none; }
+  :root:not([data-theme="light"]) .tema .i-luna { display: block; }
+}
+.brand h1 { font-size: 23px; font-weight: 700; letter-spacing: .03em; color: var(--top-ink); padding-left: 16px; border-left: 1px solid var(--top-line); line-height: 1.15; }
+.tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: var(--tabs-bg); padding: 4px; border-radius: 12px; }
+.tab { min-height: 42px; padding: 0 4px; border: 0; border-radius: 9px; background: transparent; color: var(--tab-ink); font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: .01em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tab:hover { background: var(--tab-hover); color: var(--top-ink); }
+.tab[aria-selected="true"] { background: var(--brand-green); color: #172236; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.tab .n { font-family: var(--font-mono); font-size: 12px; background: var(--tab-n-bg); color: var(--tab-n-ink); border-radius: 99px; padding: 1px 8px; }
+.tab[aria-selected="true"] .n { background: #172236; color: var(--brand-green); }
+
+main { padding-block: 16px; display: grid; gap: 14px; }
+.view { display: grid; gap: 14px; }
+
+/* Tarjetas de sección */
+.card { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--brand-teal); border-radius: 14px; padding: 16px; display: grid; gap: 14px; box-shadow: 0 1px 2px rgba(23,34,54,.05); }
+.card-head { display: grid; gap: 2px; }
+.card-head h2 { font-size: 15px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); }
+.card-head p { margin: 0; color: var(--ink-2); font-size: 14px; }
+
+/* Botones */
+.btn { min-height: 46px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.btn:hover { border-color: var(--brand-teal); }
+.btn.rec { background: var(--bad); color: #fff; border-color: var(--bad); }
+.btn.primary { background: var(--btn); color: #172236; border-color: var(--btn); }
+.btn.primary:hover { background: var(--btn-hover); border-color: var(--btn-hover); filter: none; }
+.btn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.btn.sm { min-height: 38px; padding: 0 12px; font-size: 14px; }
+.link { background: none; border: 0; padding: 4px 0; color: var(--accent); font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Foto */
+.photo { display: grid; gap: 10px; }
+.photo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.photo-actions .primary { flex: 1 1 180px; min-height: 52px; font-size: 16px; }
+#eq-known { display: grid; gap: 8px; }
+#eq-known button { text-align: left; display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; min-height: 52px; }
+#eq-known .s1 { font-weight: 600; }
+#eq-known .s2 { font-size: 13px; color: var(--ink-2); }
+.sugg { display: grid; gap: 6px; }
+.sugg button { text-align: left; display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; min-height: 52px; }
+.sugg button:hover, .sugg button:focus-visible { border-color: var(--accent); }
+.sugg .s1 { font-weight: 600; }
+.sugg .s2 { font-size: 13px; color: var(--ink-2); }
+.doc-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; }
+.doc-tools .btn.sm { min-height: 40px; }
+.thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb button { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(0,0,0,.65); color: #fff; font-size: 18px; line-height: 1; cursor: pointer; }
+.photo-result { display: flex; gap: 12px; align-items: flex-start; }
+.photo-result img { width: 88px; height: 88px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); flex: none; background: var(--surface-2); }
+.photo-info { display: grid; gap: 6px; min-width: 0; flex: 1; }
+.status { margin: 0; font-size: 14px; display: flex; gap: 8px; align-items: flex-start; }
+.status[data-tone="busy"] { color: var(--ink-2); }
+.status[data-tone="ok"] { color: var(--ok); }
+.status[data-tone="warn"] { color: var(--warn); }
+.status[data-tone="err"] { color: var(--bad); }
+.status:empty { display: none; }
+.mini { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--accent); animation: spin .8s linear infinite; flex: none; margin-top: 2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation-duration: 3s; } }
+
+/* Campos */
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.field { display: grid; gap: 5px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.field label { font-size: 13px; font-weight: 500; color: var(--ink-2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tag { display: none; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); }
+.field.auto .tag { display: inline; }
+.field input, .field textarea, .field select { width: 100%; min-height: 46px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-size: 16px; }
+.field textarea { min-height: 84px; resize: vertical; }
+.field.auto input { border-color: var(--warn); background: var(--warn-soft); }
+.field input.serie-in { font-family: var(--font-mono); font-size: 19px; letter-spacing: .03em; text-transform: uppercase; }
+.hint { margin: 0; font-size: 13px; color: var(--ink-2); }
+.hint[data-tone="ok"] { color: var(--ok); }
+.hint[data-tone="warn"] { color: var(--warn); }
+.hint:empty { display: none; }
+
+.lbl { font-size: 13px; font-weight: 500; color: var(--ink-2); }
+.r-falla { font-size: 14px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Avisos */
+.note { border-radius: 10px; padding: 10px 12px; font-size: 14px; border: 1px solid var(--accent); background: var(--accent-soft); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.note.warn { border-color: var(--warn); background: var(--warn-soft); }
+.note.bad { border-color: var(--bad); background: var(--bad-soft); }
+
+/* Barra de guardado */
+.savebar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
+.savebar-in { max-width: 680px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.need { flex: 1; min-width: 0; font-size: 14px; color: var(--ink-2); }
+.savebar .btn { min-height: 50px; padding: 0 22px; font-size: 16px; }
+
+/* Listado */
+.filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.filtros .wide { grid-column: 1 / -1; }
+.ot-res .r-top .pill { max-width: 55%; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 560px) { .tabs { grid-template-columns: repeat(6, 1fr); } .tab:nth-child(-n+3) { grid-column: span 2; } .tab:nth-child(n+4) { grid-column: span 3; } }
+.alq-eq { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 10px; background: var(--bg); }
+.alq-eq-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.alq-known { display: grid; gap: 8px; }
+.alq-known button { text-align: left; display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; min-height: 52px; }
+.alq-known .s1 { font-weight: 600; }
+.alq-known .s2 { font-size: 13px; color: var(--ink-2); }
+.alq-fin { min-height: 46px; display: flex; align-items: center; padding: 0 12px; border-radius: 10px; border: 1px dashed var(--line); color: var(--ink-2); font-weight: 600; }
+.alq-ok { display: grid; gap: 10px; }
+@media (min-width: 980px) {
+  body.alq #view-alq { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
+  body.alq #view-alq > .alq-left { grid-column: 1; display: grid; gap: 14px; }
+  body.alq #view-alq > .alq-right { grid-column: 2; display: grid; gap: 14px; }
+}
+/* Escritorio: las cuatro pestañas comparten el mismo ancho, así el encabezado no se mueve al cambiar de una a otra */
+@media (min-width: 980px) {
+  .wrap, .top-in, .savebar-in { max-width: 1240px; }
+  .tabs { max-width: 720px; }
+  /* Ingresos: equipo a la izquierda; cliente y accesorios a la derecha; abajo reparación y uso interno */
+  #view-new { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
+  #view-new > .note { grid-column: 1 / -1; }
+  #view-new > .card:nth-of-type(1) { grid-column: 1; grid-row: span 2; }
+  #view-new > .card:nth-of-type(2) { grid-column: 2; }
+  #view-new > .card:nth-of-type(3) { grid-column: 2; }
+  /* Ingresados: búsqueda y filtros a la izquierda, listado a la derecha */
+  #view-list { grid-template-columns: 340px minmax(0, 1fr); column-gap: 20px; align-items: start; }
+  #view-list > .tools { grid-column: 1; position: sticky; top: 170px; background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--brand-teal); border-radius: 14px; padding: 16px; }
+  #view-list > .rows { grid-column: 2; }
+}
+@media (min-width: 1280px) {
+  #view-list > .rows { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  #view-list > .rows > .sec-h, #view-list > .rows > .note, #view-list > .rows > .empty, #view-list > .rows > p { grid-column: 1 / -1; }
+}
+/* Escritorio: filtros a la izquierda, resultados a la derecha (en celulares queda como siempre) */
+@media (min-width: 980px) {
+  body.ot #view-ot { grid-template-columns: 380px minmax(0, 1fr); column-gap: 20px; row-gap: 10px; align-items: start; align-content: start; grid-template-rows: auto auto 1fr; }
+  body.ot #view-ot > .card { grid-column: 1; grid-row: 1 / span 3; position: sticky; top: 150px; max-height: calc(100vh - 170px); overflow-y: auto; }
+  body.ot #view-ot > #o-meta, body.ot #view-ot > #o-rows, body.ot #view-ot > #o-base { grid-column: 2; }
+  body.ot #view-ot > #o-meta { min-height: 20px; align-self: end; text-align: left; }
+  body.ot #view-ot > #o-base { text-align: left; }
+}
+
+/* Reparación / uso interno */
+.card.interno { border-top-color: var(--warn); background: var(--warn-soft); }
+.card.interno .card-head h2 { color: var(--warn); }
+.card.interno .field textarea { background: var(--surface); }
+#card-rep .acts .hint { flex: 1 1 200px; }
+@media (min-width: 980px) {
+  #view-new > .card:nth-of-type(4) { grid-column: 1; }
+  #view-new > .card:nth-of-type(5) { grid-column: 2; }
+}
+
+/* Reparaciones anteriores del equipo */
+.hist { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--bg); display: grid; gap: 6px; }
+.hist-h { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; justify-content: space-between; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.hist-h .link { text-transform: none; letter-spacing: 0; }
+.hist-i { border-top: 1px dashed var(--line); padding-top: 6px; font-size: 14px; display: grid; gap: 1px; }
+.hist-i:first-of-type { border-top: 0; padding-top: 0; }
+.hist-i .l1 { display: flex; flex-wrap: wrap; gap: 2px 10px; font-weight: 600; }
+.hist-i .l2 { color: var(--ink-2); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#vinc { display: grid; gap: 8px; }
+#vinc .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.sec-h { display: grid; gap: 2px; padding: 10px 2px 0; }
+.sec-h .meta { margin-left: 0; }
+.sec-h strong { font-size: 13px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); }
+.extras { display: grid; gap: 10px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.ex-h { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.ex-tag { white-space: nowrap; display: inline-block; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 99px; padding: 1px 8px; }
+.ex-tag[hidden] { display: none; }
+.ex-st { align-self: center; }
+.extras .thumb a { display: block; width: 100%; height: 100%; }
+.imp { border-top: 1px dashed var(--line); padding-top: 12px; }
+.imp summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--accent); }
+.imp-in { display: grid; gap: 10px; margin-top: 10px; }
+.imp-in input[type="file"] { width: 100%; font-size: 14px; }
+.imp-det { font-size: 13px; display: grid; gap: 2px; color: var(--ink-2); }
+.ot-base { text-align: center; padding: 6px 0 2px; }
+.tools { display: grid; gap: 10px; }
+.search { width: 100%; min-height: 46px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 16px; }
+.otin { display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.otin .pre { display: flex; align-items: center; padding: 0 4px 0 14px; font-weight: 600; color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.otin input { border: 0; background: transparent; min-width: 0; flex: 1; letter-spacing: .08em; font-variant-numeric: tabular-nums; padding-left: 2px; }
+.otin:focus-within { outline: 2px solid var(--btn); }
+.otin input:focus { outline: 0; }
+.addrow { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+.addrow input { flex: 1; min-width: 140px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { min-height: 36px; padding: 0 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--btn); color: #172236; border-color: var(--btn); }
+.meta { margin-left: auto; font-size: 13px; color: var(--ink-2); }
+.rows { display: grid; gap: 10px; }
+.row { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.row summary { list-style: none; cursor: pointer; padding: 12px 40px 12px 14px; display: grid; gap: 2px; position: relative; }
+.row summary::-webkit-details-marker { display: none; }
+.row summary::after { content: ""; position: absolute; right: 16px; top: 50%; width: 8px; height: 8px; border-right: 2px solid var(--ink-2); border-bottom: 2px solid var(--ink-2); transform: translateY(-70%) rotate(45deg); }
+.row[open] summary::after { transform: translateY(-30%) rotate(-135deg); }
+.r-top { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.serie { font-size: 18px; font-weight: 500; overflow-wrap: anywhere; letter-spacing: .02em; }
+.r-eq { font-weight: 600; overflow-wrap: anywhere; }
+.r-cl { color: var(--ink-2); font-size: 14px; overflow-wrap: anywhere; }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 99px; white-space: nowrap; flex: none; }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.bad { background: var(--bad); color: #fff; }
+.pill.neutro { background: var(--surface-2); color: var(--ink-2); }
+.pv-row { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
+.pv-row.vencido { border-left-color: var(--bad); }
+.pv-row.pronto { border-left-color: var(--warn); }
+.pv-row .pv-pend { background: var(--warn-soft); color: var(--ink); border-radius: 8px; padding: 8px 10px; font-size: 14px; white-space: pre-wrap; }
+.pv-hist { border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 10px; }
+.pv-h { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; font-size: 14px; }
+.pv-h .t { white-space: pre-wrap; }
+.pv-h .thumbs { grid-template-columns: repeat(4, 1fr); }
+.items { display: grid; gap: 6px; }
+.items .it, .checks .ck { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 15px; }
+.items .it span { flex: 1; overflow-wrap: anywhere; }
+.items .it button { width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink-2); font-size: 18px; cursor: pointer; flex: none; }
+.checks { display: grid; gap: 6px; }
+.checks .ck { cursor: pointer; }
+.checks .ck input { width: 22px; height: 22px; min-height: 0; flex: none; accent-color: var(--brand-teal); }
+.checks .ck.hecho span { text-decoration: line-through; color: var(--ink-2); }
+.checks .ck small, .pv-h .uni { font-size: 12px; font-weight: 600; background: var(--warn-soft); color: var(--warn); border-radius: 99px; padding: 1px 8px; white-space: nowrap; }
+.pv-h ul { margin: 0; padding-left: 18px; }
+.pv-h .int { background: var(--warn-soft); border-radius: 8px; padding: 6px 10px; white-space: pre-wrap; }
+.sug { display: grid; gap: 6px; margin-top: 8px; }
+.sug button { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 14px; cursor: pointer; display: grid; gap: 2px; }
+.sug button:hover { border-color: var(--brand-teal); }
+.sug .sub { color: var(--ink-2); font-size: 13px; }
+.seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.r-body { border-top: 1px solid var(--line); padding: 14px; display: grid; gap: 14px; }
+.kv { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 14px; }
+.kv dt { color: var(--ink-2); }
+.kv dd { margin: 0; overflow-wrap: anywhere; min-width: 0; }
+.photos { display: flex; flex-wrap: wrap; gap: 10px; }
+.ph { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); text-decoration: none; width: 96px; }
+.ph img { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+.ctrl { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+label.ctrl { flex-wrap: nowrap; }
+.ctrl label.chk { display: flex; align-items: center; gap: 8px; font-weight: 500; min-height: 40px; }
+.ctrl input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
+.ctrl .ot { width: 150px; min-height: 40px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-size: 15px; }
+.acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.empty { text-align: center; padding: 28px 12px; color: var(--ink-2); display: grid; gap: 12px; justify-items: center; }
+.empty strong { color: var(--ink); font-family: var(--font-display); font-size: 18px; }
+
+.num { font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); margin-left: auto; margin-right: 8px; }
+.toast { position: fixed; left: 16px; right: 16px; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); z-index: 8; max-width: 520px; margin: 0 auto; background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+.toast[data-tone="err"] { background: var(--bad); color: #fff; }
+
+#print-sheet { display: none; }
+@page { size: A4; margin: 10mm; }
+@media print {
+  html, body { background: #fff !important; color: #000 !important; }
+  .wrap, .savebar, .toast { display: none !important; }
+  #print-sheet { display: block; font-family: Arial, Helvetica, sans-serif; color: #000; }
+  .ps { border: 3px solid #000; padding: 6mm; }
+  .ps-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6mm; border-bottom: 2px solid #000; padding-bottom: 4mm; }
+  .ps-num { font-size: 15pt; font-weight: 700; }
+  .ps-num b { font-size: 44pt; display: block; line-height: 1; }
+  .ps-date { font-size: 11pt; margin-top: 2mm; }
+  .ps-qr { width: 34mm; height: 34mm; flex: none; text-align: center; font-size: 7pt; }
+  .ps-qr svg { width: 34mm; height: 34mm; display: block; }
+  .ps-serie { margin: 4mm 0; border: 2px solid #000; padding: 3mm 4mm; }
+  .ps-serie small { display: block; font-size: 10pt; text-transform: uppercase; letter-spacing: .06em; }
+  .ps-serie b { font-family: "Courier New", monospace; font-size: 30pt; word-break: break-all; line-height: 1.1; }
+  .ps-row { margin: 0 0 3.5mm; font-size: 14pt; line-height: 1.25; }
+  .ps-row small { display: block; font-size: 9pt; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+  .ps-row.big { font-size: 17pt; font-weight: 700; }
+  .ps-fotos { display: flex; gap: 3mm; margin: 2mm 0 4mm; }
+  .ps-fotos img { flex: 1 1 0; min-width: 0; width: 0; height: 52mm; object-fit: contain; border: 1px solid #000; }
+  .ps-foot { margin-top: 4mm; border-top: 1px solid #000; padding-top: 3mm; font-size: 10pt; display: flex; justify-content: space-between; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="top-in">
+      <div class="brand">
+        <img class="logo-l" src="/img/logo.png" alt="Inbio" width="126" height="46"><img class="logo-d" src="/img/logo-blanco.png" alt="" width="126" height="46">
+        <h1>Postventa</h1>
+        <button type="button" class="tema" id="tema" aria-label="Cambiar a modo oscuro" title="Cambiar modo claro / oscuro">
+          <svg class="i-sol" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg>
+          <svg class="i-luna" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+        </button>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Secciones">
+        <button class="tab" id="tab-new" role="tab" aria-selected="true" aria-controls="view-new" type="button">Ingresos</button>
+        <button class="tab" id="tab-list" role="tab" aria-selected="false" aria-controls="view-list" type="button">Ingresados <span class="n" id="count">0</span></button>
+        <button class="tab" id="tab-ot" role="tab" aria-selected="false" aria-controls="view-ot" type="button">Buscar OT</button>
+        <button class="tab" id="tab-alq" role="tab" aria-selected="false" aria-controls="view-alq" type="button">Alquiler</button>
+        <button class="tab" id="tab-prev" role="tab" aria-selected="false" aria-controls="view-prev" type="button">Preventivos <span class="n" id="prev-count" hidden>0</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="note bad" id="banner" hidden role="status"></div>
+
+    <section class="view" id="view-new" role="tabpanel" aria-labelledby="tab-new">
+      <div class="note" id="saved" hidden role="status"></div>
+      <div class="note" id="editing" hidden role="status"></div>
+
+      <section class="card" aria-labelledby="h-equipo">
+        <div class="card-head">
+          <h2 id="h-equipo">Equipo</h2>
+        </div>
+        <div class="photo" id="eq-photos">
+          <div class="photo-actions">
+            <button type="button" class="btn primary" id="btn-cam"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.2h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.6"/></svg><span id="cam-label">Sacar foto del equipo</span></button>
+            <button type="button" class="btn" id="btn-gal">Galería</button>
+          </div>
+          <input type="file" accept="image/*" capture="environment" hidden id="in-cam">
+          <input type="file" accept="image/*" hidden id="in-gal">
+          <div class="thumbs" id="thumbs" hidden></div>
+          <p class="status" id="eq-status" role="status"></p>
+          <div class="mini"><button type="button" class="link" id="btn-reread" hidden>Leer de nuevo</button></div>
+        </div>
+        <div class="grid">
+          <div class="field wide" data-f="serie">
+            <label for="f-serie">N.º de serie <span class="tag">leído de la foto</span></label>
+            <input id="f-serie" class="serie-in" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          </div>
+          <div class="field wide" data-f="ot">
+            <label for="f-ot">N.º de OT en Flexxus</label>
+            <div class="otin"><span class="pre" id="ot-pre">OT 10000</span><input id="f-ot" inputmode="numeric" autocomplete="off" maxlength="9" placeholder="0000"></div>
+          </div>
+          <div class="note wide" id="otinfo" hidden role="status" style="grid-column: 1 / -1"></div>
+          <div class="note warn wide" id="dup" hidden role="status" style="grid-column: 1 / -1"></div>
+          <div class="note wide" id="eq-known" hidden role="status" style="grid-column: 1 / -1"></div>
+          <div class="note warn wide" id="vinc" hidden role="status" style="grid-column: 1 / -1"></div>
+          <div class="note wide" id="flexbase" hidden style="grid-column: 1 / -1"></div>
+          <div class="hist wide" id="hist" hidden style="grid-column: 1 / -1"></div>
+          <div class="field" data-f="tipo">
+            <label for="f-tipo">Tipo de equipo <span class="tag">leído de la foto</span></label>
+            <input id="f-tipo" list="dl-tipo" autocomplete="off" placeholder="Monitor">
+          </div>
+          <div class="field" data-f="marca">
+            <label for="f-marca">Marca <span class="tag">leído de la foto</span></label>
+            <input id="f-marca" list="dl-marca" autocomplete="off" placeholder="Mindray">
+          </div>
+          <div class="field wide" data-f="modelo">
+            <label for="f-modelo">Modelo <span class="tag">leído de la foto</span></label>
+            <input id="f-modelo" autocomplete="off" placeholder="BeneVision N17">
+          </div>
+          <div class="field wide" data-f="falla">
+            <label for="f-falla">Falla informada</label>
+            <textarea id="f-falla"></textarea>
+          </div>
+        </div>
+        <datalist id="dl-tipo">
+          <option value="Monitor de paciente"><option value="Estación de anestesia"><option value="Ventilador"><option value="Autoclave / esterilizador"><option value="Electrocardiógrafo"><option value="Desfibrilador"><option value="Bomba de infusión"><option value="Oxímetro de pulso"><option value="Ecógrafo"><option value="Electrobisturí"><option value="Aspirador quirúrgico"><option value="Incubadora neonatal">
+        </datalist>
+        <datalist id="dl-marca">
+          <option value="Mindray"><option value="Philips"><option value="GE Healthcare"><option value="Dräger"><option value="Medtronic"><option value="Nihon Kohden"><option value="Welch Allyn"><option value="Edan"><option value="Spacelabs"><option value="Getinge"><option value="Siemens">
+        </datalist>
+      </section>
+
+      <section class="card" aria-labelledby="h-cliente">
+        <div class="card-head">
+          <h2 id="h-cliente">Cliente</h2>
+        </div>
+        <div class="grid">
+          <div class="field wide" data-f="nombre">
+            <label for="f-nombre">Nombre y apellido o razón social</label>
+            <input id="f-nombre" autocomplete="off" autocapitalize="words" placeholder="Buscar o escribir">
+          </div>
+          <div class="sugg wide" id="sugg" style="grid-column: 1 / -1" hidden></div>
+          <div class="note wide" id="cl-link" style="grid-column: 1 / -1" hidden role="status"></div>
+          <div class="field" data-f="doc">
+            <label for="f-doc">DNI o CUIL/CUIT</label>
+            <input id="f-doc" inputmode="numeric" autocomplete="off" placeholder="20-12345678-6">
+          </div>
+          <div class="field" data-f="tel">
+            <label for="f-tel">Teléfono</label>
+            <input id="f-tel" inputmode="tel" autocomplete="off">
+          </div>
+          <p class="hint wide" id="doc-hint" style="grid-column: 1 / -1"></p>
+          <div class="doc-tools wide" id="doc-tools" style="grid-column: 1 / -1" hidden></div>
+          <div class="field wide" data-f="iva">
+            <label for="f-iva">Condición frente al IVA</label>
+            <select id="f-iva">
+              <option value="">Sin dato</option><option>Responsable Inscripto</option><option>Monotributo</option><option>IVA Exento</option><option>Consumidor Final</option><option>No Responsable</option>
+            </select>
+          </div>
+          <div class="field wide" data-f="dir">
+            <label for="f-dir">Dirección</label>
+            <input id="f-dir" autocomplete="off" autocapitalize="words">
+          </div>
+          <div class="note wide" id="known" hidden role="status" style="grid-column: 1 / -1"></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-estado">
+        <div class="card-head">
+          <h2 id="h-estado">Accesorios y observaciones</h2>
+        </div>
+        <div class="field wide">
+          <span class="lbl" id="l-acces">Accesorios</span>
+          <div class="chips" id="acces" role="group" aria-labelledby="l-acces"></div>
+          <div class="addrow"><input id="acces-add" autocomplete="off" placeholder="Otro accesorio" aria-label="Agregar otro accesorio"><button type="button" class="btn sm" id="acces-add-btn">Agregar</button></div>
+        </div>
+        <div class="field" data-f="accesTxt" hidden><input type="hidden" id="f-acces"></div>
+        <div class="field" data-f="por" hidden><input type="hidden" id="f-por"></div>
+        <div class="field wide" data-f="nota">
+          <label for="f-nota">Observaciones</label>
+          <textarea id="f-nota"></textarea>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-rep" id="card-rep">
+        <div class="card-head">
+          <h2 id="h-rep">Reparación</h2>
+        </div>
+        <div class="field wide" data-f="reparacion">
+          <label for="f-rep">Trabajo realizado</label>
+          <textarea id="f-rep" rows="5"></textarea>
+          <div class="addrow"><button type="button" class="btn sm" id="btn-audio"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="audio-lbl">Grabar audio</span></button><input type="file" accept="audio/*" capture hidden id="in-audio"><span class="status" id="audio-st" role="status"></span></div>
+        </div>
+        <div class="grid">
+          <div class="field"><label for="f-repfecha">Fecha de la reparación</label><input id="f-repfecha" type="date"></div>
+          <div class="field"><label for="f-tecnico">Técnico</label><select id="f-tecnico"><option value="">Elegir</option></select></div>
+        </div>
+        <div class="photo">
+          <span class="lbl">Fotos de la reparación (hasta 8)</span>
+          <div class="photo-actions">
+            <button type="button" class="btn" id="btn-cam-rep"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.2h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.6"/></svg><span id="cam-rep-label">Sacar foto</span></button>
+            <button type="button" class="btn" id="btn-gal-rep">Galería</button>
+          </div>
+          <div class="thumbs" id="thumbs-rep" hidden></div>
+          <input type="file" accept="image/*" capture="environment" hidden id="in-cam-rep">
+          <input type="file" accept="image/*" hidden id="in-gal-rep">
+        </div>
+        <div class="acts">
+          <button type="button" class="btn primary" id="btn-informe">Generar informe técnico</button>
+        </div>
+      </section>
+
+      <section class="card interno" aria-labelledby="h-int" id="card-int">
+        <div class="card-head">
+          <h2 id="h-int">Uso interno</h2>
+        </div>
+        <div class="field wide" data-f="notasInt">
+          <label for="f-int">Notas internas</label>
+          <textarea id="f-int" rows="4"></textarea>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
+      <div class="tools">
+        <input class="search" id="q" type="search" placeholder="Buscar por serie, cliente, modelo, DNI u OT" autocomplete="off" aria-label="Buscar ingresos">
+        <div class="chips">
+          <button type="button" class="chip" id="chip-all" aria-pressed="true">Todos</button>
+          <button type="button" class="chip" id="chip-pend" aria-pressed="false">Sin cargar en el sistema</button>
+          <button type="button" class="chip" id="chip-flex" aria-pressed="false">Pendientes del sistema</button>
+          <span class="meta" id="list-meta"></span>
+        </div>
+        <div><button type="button" class="btn sm" id="export" hidden>Exportar a CSV</button></div>
+      </div>
+      <div class="rows" id="rows"></div>
+    </section>
+    <section class="view" id="view-ot" role="tabpanel" aria-labelledby="tab-ot" hidden>
+      <section class="card" aria-labelledby="h-ot">
+        <div class="card-head">
+          <h2 id="h-ot">Buscar orden de trabajo</h2>
+          <p>Escribí cualquier dato en la búsqueda general. Si querés acotar, usá los campos de abajo o la búsqueda avanzada.</p>
+        </div>
+        <div class="filtros">
+          <div class="field wide"><label for="o-q">Búsqueda general</label>
+            <input id="o-q" type="search" autocomplete="off" placeholder="Cliente, serie, equipo, marca, modelo u OT"></div>
+          <div class="field wide"><label for="o-cliente">Cliente</label>
+            <input id="o-cliente" type="search" autocomplete="off" placeholder="Nombre o parte del nombre"></div>
+          <div class="field wide"><label for="o-serie">N.º de serie</label>
+            <input id="o-serie" class="serie-in" type="search" autocomplete="off" autocapitalize="characters" placeholder="Serie completa o parte"></div>
+          <label class="ctrl wide" for="o-ant"><input type="checkbox" id="o-ant"> <span>Incluir guías del sistema anterior</span></label>
+          <div class="wide"><button type="button" class="btn sm" id="o-avanzada" aria-expanded="false" aria-controls="o-adv">Búsqueda avanzada ▾</button></div>
+          <div class="filtros wide" id="o-adv" hidden>
+            <div class="field wide"><label for="o-tipo">Tipo de equipo</label>
+              <input id="o-tipo" type="search" list="dl-tipo" autocomplete="off" placeholder="Ej.: nebulizador"></div>
+            <div class="field"><label for="o-marca">Marca</label>
+              <input id="o-marca" type="search" list="dl-marca" autocomplete="off"></div>
+            <div class="field"><label for="o-modelo">Modelo</label>
+              <input id="o-modelo" type="search" autocomplete="off"></div>
+            <div class="field"><label for="o-desde">Ingreso desde</label><input id="o-desde" type="date"></div>
+            <div class="field"><label for="o-hasta">Ingreso hasta</label><input id="o-hasta" type="date"></div>
+            <p class="meta wide" style="margin:0">Las órdenes anteriores al 20/07/2026 no tienen fecha de ingreso en el listado, así que no aparecen al filtrar por fecha.</p>
+            <div class="field wide"><label for="o-ot">N.º de OT</label>
+              <input id="o-ot" type="search" inputmode="numeric" autocomplete="off" placeholder="Opcional"></div>
+          </div>
+        </div>
+        <div><button type="button" class="btn sm" id="o-limpiar">Limpiar</button></div>
+        <details class="imp" id="o-imp">
+          <summary>Actualizar la base de OT</summary>
+          <div class="imp-in">
+            <p class="hint">Elegí el listado de reparaciones que exportás del sistema (.csv o .xls). Se suma a la base: las OT nuevas se agregan y las que ya estaban se actualizan.</p>
+            <input type="file" id="o-file" accept=".csv,.xls,.XLS,.CSV,text/csv,application/vnd.ms-excel" aria-label="Listado de OT">
+            <button type="button" class="btn primary sm" id="o-subir" disabled>Cargar listado</button>
+            <p class="status" id="o-imp-st" data-tone="busy" aria-live="polite"></p>
+            <div id="o-imp-det"></div>
+          </div>
+        </details>
+      </section>
+      <div class="meta" id="o-meta" aria-live="polite"></div>
+      <div class="rows ot-res" id="o-rows"></div>
+      <p class="meta ot-base" id="o-base"></p>
+    </section>
+    <section class="view" id="view-alq" role="tabpanel" aria-labelledby="tab-alq" hidden>
+      <div class="alq-left">
+      <section class="card" aria-labelledby="h-a-pac">
+        <div class="card-head">
+          <h2 id="h-a-pac">Paciente</h2>
+          <p>Datos de quien alquila el equipo (EL LOCATARIO del contrato).</p>
+        </div>
+        <div class="grid">
+          <div class="field" style="max-width:120px">
+            <label for="a-trato">Trato</label>
+            <select id="a-trato"><option>Sr</option><option>Sra</option></select>
+          </div>
+          <div class="field wide">
+            <label for="a-nombre">Nombre y apellido</label>
+            <input id="a-nombre" autocomplete="off" autocapitalize="words" placeholder="Juan Pérez">
+          </div>
+          <div class="field">
+            <label for="a-dni">N.º de DNI</label>
+            <input id="a-dni" inputmode="numeric" autocomplete="off" placeholder="12345678">
+          </div>
+          <div class="field">
+            <label for="a-tel">Teléfono de contacto</label>
+            <input id="a-tel" type="tel" autocomplete="off" placeholder="3492 123456">
+          </div>
+          <div class="note wide" id="a-prev" hidden role="status" style="grid-column: 1 / -1"></div>
+          <div class="field wide">
+            <label for="a-dir">Dirección</label>
+            <input id="a-dir" autocomplete="off" placeholder="Falucho 583">
+          </div>
+          <div class="field wide">
+            <label for="a-ciudad">Ciudad</label>
+            <input id="a-ciudad" autocomplete="off" placeholder="Ceres">
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-a-eq">
+        <div class="card-head">
+          <h2 id="h-a-eq">Equipo a alquilar</h2>
+          <p>Escribí el N.º de serie: si el equipo ya está en la base, se completan solos el tipo, la marca y el modelo.</p>
+        </div>
+        <div id="a-equipos" style="display:grid; gap:12px"></div>
+        <div><button type="button" class="btn sm" id="a-add-eq">+ Agregar otro equipo (accesorio, tubo, etc.)</button></div>
+        <div class="grid">
+          <div class="field wide">
+            <label for="a-frase">Cómo dice en el contrato</label>
+            <input id="a-frase" autocomplete="off">
+          </div>
+          <div class="field wide">
+            <label for="a-datos">Datos del equipo (van en negrita)</label>
+            <input id="a-datos" autocomplete="off">
+          </div>
+        </div>
+        <p class="meta" style="margin:0; text-align:left">Estos dos textos se arman solos con lo que cargaste arriba. Podés corregirlos; si los borrás, vuelven a armarse solos.</p>
+      </section>
+
+      <section class="card" aria-labelledby="h-a-con">
+        <div class="card-head">
+          <h2 id="h-a-con">Contrato</h2>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="a-numero">N.º de contrato</label>
+            <input id="a-numero" inputmode="numeric" autocomplete="off">
+          </div>
+          <div class="field" style="max-width:120px">
+            <label for="a-anio">Año (2 cifras)</label>
+            <input id="a-anio" inputmode="numeric" maxlength="2" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="a-meses">Plazo (meses)</label>
+            <input id="a-meses" inputmode="numeric" autocomplete="off" value="12">
+          </div>
+          <div class="field">
+            <label for="a-inicio">Fecha de inicio</label>
+            <input id="a-inicio" type="date">
+          </div>
+          <div class="field">
+            <label>Vence</label>
+            <div class="alq-fin" id="a-fin" aria-live="polite">—</div>
+          </div>
+          <div class="field">
+            <label for="a-firma">Fecha de firma</label>
+            <input id="a-firma" type="date">
+          </div>
+          <div class="field wide ctrl">
+            <label class="chk"><input type="checkbox" id="a-iapos"> <strong>IAPOS</strong> (el gremio paga el alquiler: se usa el modelo de contrato de IAPOS)</label>
+          </div>
+          <div class="field wide ctrl">
+            <label class="chk"><input type="checkbox" id="a-contacto" checked> Incluir DNI y teléfono del paciente en el contrato (el modelo no los trae)</label>
+          </div>
+        </div>
+        <div class="note bad" id="a-err" hidden role="alert"></div>
+        <button type="button" class="btn primary" id="a-generar">Generar contrato (Word)</button>
+        <div class="alq-ok note" id="a-ok" hidden role="status"></div>
+      </section>
+      </div>
+
+      <div class="alq-right">
+      <section class="card" aria-labelledby="h-a-lista">
+        <div class="card-head">
+          <h2 id="h-a-lista">Contratos generados</h2>
+          <p id="a-meta">Cargando…</p>
+        </div>
+        <input class="search" id="a-q" type="search" placeholder="Buscar por paciente, DNI, equipo, serie o N.º" autocomplete="off" aria-label="Buscar contratos">
+        <div class="rows" id="a-rows"></div>
+      </section>
+      </div>
+    </section>
+
+    <section class="view" id="view-prev" role="tabpanel" aria-labelledby="tab-prev" hidden>
+      <div class="seg" id="pv-seg">
+        <button type="button" class="chip" id="pv-t-prox" aria-pressed="true">Próximos mantenimientos</button>
+        <button type="button" class="chip" id="pv-t-rec" aria-pressed="false">Mantenimientos recurrentes</button>
+      </div>
+
+      <div class="view" id="pv-prox">
+        <div class="tools">
+          <input class="search" id="pv-q" type="search" placeholder="Buscar por cliente, equipo o serie" autocomplete="off" aria-label="Buscar mantenimientos">
+          <div class="chips">
+            <button type="button" class="chip" data-pvf="all" aria-pressed="true">Todos</button>
+            <button type="button" class="chip" data-pvf="venc" aria-pressed="false">Vencidos</button>
+            <button type="button" class="chip" data-pvf="30" aria-pressed="false">Próximos 30 días</button>
+            <button type="button" class="chip" data-pvf="90" aria-pressed="false">Próximos 90 días</button>
+            <span class="meta" id="pv-meta"></span>
+          </div>
+        </div>
+        <div class="rows" id="pv-rows"></div>
+      </div>
+
+      <div class="view" id="pv-rec" hidden>
+        <section class="card" aria-labelledby="h-pv-form">
+          <div class="card-head"><h2 id="h-pv-form">Nuevo mantenimiento recurrente</h2></div>
+          <div class="field wide"><label for="pv-buscar">Buscar equipo en la base</label>
+            <input id="pv-buscar" type="search" autocomplete="off" placeholder="Serie, cliente o modelo">
+            <div class="sug" id="pv-sug" hidden></div></div>
+          <div class="grid">
+            <div class="field wide"><label for="pv-serie">N.º de serie</label><input id="pv-serie" class="serie-in" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+            <div class="field"><label for="pv-tipo">Tipo de equipo</label><input id="pv-tipo" list="dl-tipo" autocomplete="off"></div>
+            <div class="field"><label for="pv-marca">Marca</label><input id="pv-marca" list="dl-marca" autocomplete="off"></div>
+            <div class="field wide"><label for="pv-modelo">Modelo</label><input id="pv-modelo" autocomplete="off"></div>
+            <div class="field wide"><label for="pv-cliente">Cliente</label><input id="pv-cliente" autocomplete="off" autocapitalize="words"></div>
+            <div class="field"><label for="pv-cada">Se repite cada</label>
+              <select id="pv-cada"><option value="1">1 mes</option><option value="2">2 meses</option><option value="3">3 meses</option><option value="4">4 meses</option><option value="6" selected>6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option><option value="0">Otro…</option></select></div>
+            <div class="field" id="pv-cada-otro-f" hidden><label for="pv-cada-otro">Meses</label><input id="pv-cada-otro" type="number" min="1" max="120" inputmode="numeric"></div>
+            <div class="field"><label for="pv-prox-f">Próximo mantenimiento</label><input id="pv-prox-f" type="date"></div>
+            <div class="field wide"><span class="lbl">Items de cada mantenimiento</span><div class="items" id="pv-tareas-box"></div></div>
+            <div class="field wide"><span class="lbl">Items solo para el próximo mantenimiento</span><div class="items" id="pv-unicos-box"></div></div>
+            <div class="field wide"><label for="pv-notas">Notas internas</label><textarea id="pv-notas" rows="2"></textarea></div>
+          </div>
+          <div class="note bad" id="pv-err" hidden role="alert"></div>
+          <div class="acts"><button type="button" class="btn primary" id="pv-guardar">Agregar</button><button type="button" class="btn" id="pv-cancelar" hidden>Cancelar edición</button></div>
+        </section>
+        <div class="rows" id="pv-plans"></div>
+      </div>
+
+      <section class="card" id="pv-reg" aria-labelledby="h-pv-reg" hidden>
+        <div class="card-head"><h2 id="h-pv-reg">Registrar mantenimiento</h2></div>
+        <div class="note" id="pvr-info"></div>
+        <div class="grid">
+          <div class="field"><label for="pvr-fecha">Fecha realizado</label><input id="pvr-fecha" type="date"></div>
+          <div class="field"><label for="pvr-tecnico">Técnico</label><select id="pvr-tecnico"><option value="">Elegir</option></select></div>
+          <div class="field wide"><label for="pvr-ot">N.º de OT en Flexxus</label>
+            <div class="otin"><span class="pre">OT 10000</span><input id="pvr-ot" inputmode="numeric" autocomplete="off" maxlength="9" placeholder="0000"></div></div>
+          <div class="note wide" id="pvr-otinfo" hidden role="status" style="grid-column: 1 / -1"></div>
+        </div>
+        <div class="field wide">
+          <span class="lbl">Items a realizar</span>
+          <div class="checks" id="pvr-checks"></div>
+          <div class="addrow" id="pvr-add-row"><input id="pvr-add" autocomplete="off" placeholder="Agregar item a cada mantenimiento" aria-label="Agregar item a cada mantenimiento"><button type="button" class="btn sm" id="pvr-add-btn">Agregar</button></div>
+        </div>
+        <div class="field wide">
+          <label for="pvr-trabajo">Trabajo realizado</label>
+          <textarea id="pvr-trabajo" rows="5"></textarea>
+          <div class="addrow"><button type="button" class="btn sm" id="pvr-audio"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="pvr-audio-lbl">Grabar audio</span></button><input type="file" accept="audio/*" capture hidden id="pvr-in-audio"><span class="status" id="pvr-audio-st" role="status"></span></div>
+        </div>
+        <div class="photo">
+          <span class="lbl">Fotos (hasta 8)</span>
+          <div class="photo-actions">
+            <button type="button" class="btn" id="pvr-cam">Sacar foto</button>
+            <button type="button" class="btn" id="pvr-gal">Galería</button>
+          </div>
+          <div class="thumbs" id="pvr-thumbs" hidden></div>
+          <input type="file" accept="image/*" capture="environment" hidden id="pvr-in-cam">
+          <input type="file" accept="image/*" multiple hidden id="pvr-in-gal">
+        </div>
+        <div class="field wide"><span class="lbl">Items solo para el próximo mantenimiento</span><div class="items" id="pvr-prox-box"></div><div class="hint" id="pvr-pasan" hidden></div></div>
+        <div class="grid">
+          <div class="field"><label for="pvr-prox">Próximo mantenimiento</label><input id="pvr-prox" type="date"></div>
+        </div>
+        <div class="field wide"><label for="pvr-notas">Notas internas</label><textarea id="pvr-notas" rows="3"></textarea></div>
+        <div class="note bad" id="pvr-err" hidden role="alert"></div>
+        <div class="acts"><button type="button" class="btn primary" id="pvr-guardar">Guardar mantenimiento</button><button type="button" class="btn" id="pvr-cancelar">Cancelar</button></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<div class="savebar" id="savebar">
+  <div class="savebar-in">
+    <div class="need" id="need" aria-live="polite">Conectando…</div>
+    <button type="button" class="btn primary" id="save" disabled>Guardar ingreso</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<div id="print-sheet" aria-hidden="true"></div>
+
+<script src="/lib/qrcode.js"></script>
+<script src="/lib/lector.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

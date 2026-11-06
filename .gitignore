@@ -1,0 +1,22 @@
+# Datos reales de clientes y del taller: NO subir (el repositorio es público)
+datos/
+*.csv
+*.ods
+*.xls
+*.xlsx
+plantillas/*.docx
+config.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Bases de datos (por si quedan fuera de datos/)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sql
+*.bak
+.env
